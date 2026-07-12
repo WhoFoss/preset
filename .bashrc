@@ -74,6 +74,17 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
+############# Função personalizada para cd
+cd() {
+    if [ "$1" == ".." ]; then
+        builtin cd .. && ls
+    elif [ -n "$1" ]; then
+        builtin cd "$1" && ls
+    else
+        builtin cd && ls
+    fi
+}
+
 # ==============================
 # Git (atalhos)
 # ==============================
