@@ -1,32 +1,44 @@
 # Habilita ajuste suave de linhas compridas
 set softwrap
 
-# Numero de tabs
+# Ativa o mouse/touch para posicionar o cursor com tap
+set mouse
+
+# Número de espaços por tab
 set tabsize 4
+
+# Tab insere espaços em vez de tabulação rígida
+set tabstospaces
 
 # Desabilita a inserção de última linha
 #set nonewlines
 
-# Desabilita modo de ajuda.
+# Desabilita modo de ajuda
 set nohelp
 
 # Mostra informações (col/line/cursor)
 set constantshow
 
-# Autoindentação
+# Autoindentação inteligente baseada na linha anterior
 set autoindent
 
-# Tab para backspace
-set tabstospaces
-
-# Multiplos buffers por padrão
+# Múltiplos buffers por padrão
 set multibuffer
 
-# Mostra linhas no início
+# Mostra números de linha na lateral
 set linenumbers
 
 # Faz backups automáticos antes de salvar
 set backup
+
+# Vai para o início/fim inteligente da linha (ignora espaços em branco)
+set smarthome
+
+# Desloca a tela linha por linha em vez de página inteira
+#set smooth
+
+# Ignora maiúsculas/minúsculas em buscas por padrão
+#set caseinsensitive
 
 ####
 # Cores foreground, background
@@ -41,9 +53,6 @@ set selectedcolor blue
 
 ####
 # Realces de sintaxe
-####
-
-#include "/usr/share/nano/*.nanorc"
 
 # Atalhos de Teclado Personalizados
 bind ^S savefile main
