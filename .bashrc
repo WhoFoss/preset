@@ -50,6 +50,9 @@ fi
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+alias h1='lsd -X'
+alias h2='lsd -a'
+alias h3='lsd --tree'
 
 # ==============================
 # Aliases (segurança)
@@ -95,6 +98,7 @@ alias gitp='git push'
 # ==============================
 # Utilidades extras
 # ==============================
+export TERM=xterm-256color
 
 # Enviar saída para termbin
 alias tb="nc termbin.com 9999 2>/dev/null || echo 'Falha ao conectar com termbin'"
