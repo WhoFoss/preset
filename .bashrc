@@ -27,16 +27,18 @@ if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
 fi
 
 # ==============================
-# Prompt (PS1)
+# Prompt (PS1) - apenas se NÃO for kitty
 # ==============================
-case "$TERM" in
-    xterm*|rxvt*|*-256color)
-	PS1='\[\033[38;5;196m\]╭──(\[\033[38;5;27;1m\]WhoFoss\[\033[38;5;196m\])\[\033[38;5;27m\]-\[\033[38;5;196m\](\[\033[38;5;27m\]$(whoami)\[\033[38;5;196m\])\n\[\033[38;5;196m\]╰─[\[\033[38;5;27m\]\W\[\033[38;5;196m\]]-}\[\033[0m\] '	
-        ;;
-    *)
-        PS1='\[\033[31m\]╭──(\[\033[34;1m\]WhoFoss\[\033[0;31m\])\[\033[34m\]-\[\033[0;31m\](\[\033[34m\]$(whoami)\[\033[0;31m\])\n\[\033[31m\]╰─[\[\033[34m\]\W\[\033[0;31m\]]-}\[\033[0m\] '
-        ;;
-esac
+if [ -z "$KITTY_WINDOW_ID" ]; then
+    case "$TERM" in
+        xterm*|rxvt*|*-256color)
+            PS1='\[\033[38;5;196m\]╭──(\[\033[38;5;27;1m\]W800\[\033[38;5;196m\])\[\033[38;5;27m\]-\[\033[38;5;196m\](\[\033[38;5;27m\]$(whoami)\[\033[38;5;196m\])\n\[\033[38;5;196m\]╰─[\[\033[38;5;27m\]\W\[\033[38;5;196m\]]-}\[\033[0m\] '	
+            ;;
+        *)
+            PS1='\[\033[31m\]╭──(\[\033[34;1m\]WhoFoss\[\033[0;31m\])\[\033[34m\]-\[\033[0;31m\](\[\033[34m\]$(whoami)\[\033[0;31m\])\n\[\033[31m\]╰─[\[\033[34m\]\W\[\033[0;31m\]]-}\[\033[0m\] '
+            ;;
+    esac
+fi
 
 # ==============================
 # Aliases (base)
@@ -98,7 +100,6 @@ alias gitp='git push'
 # ==============================
 # Utilidades extras
 # ==============================
-export TERM=xterm-256color
 
 # Enviar saída para termbin
 alias tb="nc termbin.com 9999 2>/dev/null || echo 'Falha ao conectar com termbin'"
@@ -146,4 +147,9 @@ alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo
 if ! shopt -oq posix; then
     [ -f /usr/share/bash-completion/bash_completion ] && . /usr/share/bash-completion/bash_completion
     [ -f /etc/bash_completion ] && . /etc/bash_completion
+fi
+
+# PS1 exclusiva do Kitty
+if [ -n "$KITTY_WINDOW_ID" ]; then
+    PS1=$'\[\e[48;5;235m\e[38;5;67m\] \uf489 \[\e[38;5;250m\]${SSH_CONNECTION:+ssh@}\u: \w \[\e[0m\e[38;5;238m\]▌\[\e[0m\]'
 fi
