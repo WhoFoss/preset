@@ -137,6 +137,31 @@ xtop() {
     history | awk '{a[$2]++ } END{for(i in a){print a[i] " " i}}' | sort -rn | head -n $N
 }
 
+############# Create Directory and Enter It
+mkcd() {
+    mkdir -p "$1" && cd "$1";
+}
+
+############# Search Files by Name
+search() {
+    find . -type f -name "$1" 2>/dev/null;
+}
+
+############# List Largest Files/Directories in Current Directory
+biggest() {
+    du -sh * 2>/dev/null | sort -rh | head -${1:-10};
+}
+
+############# Create Backup with Timestamp
+bak() {
+    cp "$1"{,.bak.$(date +%Y%m%d%H%M%S)};
+}
+
+############# Check if Port is in Use
+portcheck() {
+    ss -tulanp 2>/dev/null | grep ":$1 " || echo "Port $1 is free";
+}
+
 # ==============================
 # Alert
 # ==============================
