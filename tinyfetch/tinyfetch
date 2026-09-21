@@ -79,10 +79,10 @@ INFO()
    ${c_mascot}.--.${c_reset}               ${c_label}KERNEL  ${c_reset} : ${c_value}$(uname -rs)${c_reset}
   ${c_mascot}|o_o |${c_reset}              ${c_label}UPTIME  ${c_reset} : ${c_value}$(uptime -p | sed 's/up //')${c_reset}
   ${c_mascot}|:_/ |${c_reset}              ${c_label}SHELL   ${c_reset} : ${c_value}${SHELL##*/}${c_reset}
- ${c_mascot}//   \ \\${c_reset}             ${c_label}AMBIENT ${c_reset} : ${c_value}$ambient${c_reset}
+ ${c_mascot}//   \\ \\${c_reset}             ${c_label}AMBIENT ${c_reset} : ${c_value}$ambient${c_reset}
 ${c_mascot}(|     | )${c_reset}            ${c_label}CPU     ${c_reset} : ${c_value}$modelname${c_reset}
-${c_mascot}/'\_   _/`\\${c_reset}           ${c_label}GPU     ${c_reset} : ${c_value}$gpu${c_reset}
-${c_mascot}\___)=(___/${c_reset}           ${c_label}MEMORY  ${c_reset} : ${c_value}$ram${c_reset}
+${c_mascot}/'\\_   _/\`\\${c_reset}           ${c_label}GPU     ${c_reset} : ${c_value}$gpu${c_reset}
+${c_mascot}\\___)=(___/${c_reset}           ${c_label}MEMORY  ${c_reset} : ${c_value}$ram${c_reset}
 EOF
 }
 
