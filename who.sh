@@ -17,7 +17,7 @@ apt_config()  { printf "Configurando ${C}%s${N}...\n" "$*"; }
 apt_fetch()   { printf "Baixar:${B}%s${N} ${D}%s${N}\n" "$1" "$2"; }
 apt_install() { printf "Instalando ${C}%s${N}... ${G}[ok]${N}\n" "$*"; }
 apt_skip()    { printf "${D}%s já instalado, pulando${N}\n" "$*"; }
-apt_done()    { printf "\n${G}✔ Concluído.${N}\n"; }
+apt_done()    { printf "\n${G}Concluído.${N}\n"; }
 
 # --- dotfiles
 declare -A dotfiles=(
