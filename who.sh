@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+trap 'echo "ERRO na linha $LINENO: $BASH_COMMAND" >&2' ERR
 
 # --- dotfiles
 declare -A dotfiles=(
@@ -48,7 +49,7 @@ get_kitty_configs() {
 
 kitty_install() {
   echo ":.:. kitty (instalador oficial)"
-  yes | bash <(curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh)
+  yes | bash <(curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh) || true
 }
 
 flatpak_install() {
