@@ -24,7 +24,7 @@ declare -A flatpaks=(
 )
 
 # --- pacotes apt
-apt_pkgs=(lsd unrar p7zip-full)
+apt_pkgs=(lsd unrar p7zip-full syncthing)
 
 # --- helpers
 die() { printf '\nERRO: %s\n' "$*" >&2; exit 1; }
