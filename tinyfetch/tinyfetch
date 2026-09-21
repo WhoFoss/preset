@@ -75,7 +75,7 @@ INFO()
 
     ${c_box}╭────────────╮${c_reset}      ${c_bold}${c_box}$USER@$(uname -n)${c_reset}
     ${c_box}│  TINYFETCH │${c_reset}      -------------------
-    ${c_box}╰────────────╯${c_reset}      ${c_label}OS      ${c_reset} : ${c_value}$PRETTY_NAME${c_reset}
+    ${c_box}╰────────────╯${c_reset}    ${c_label}OS      ${c_reset} : ${c_value}$PRETTY_NAME${c_reset}
    ${c_mascot}.--.${c_reset}               ${c_label}KERNEL  ${c_reset} : ${c_value}$(uname -rs)${c_reset}
   ${c_mascot}|o_o |${c_reset}              ${c_label}UPTIME  ${c_reset} : ${c_value}$(uptime -p | sed 's/up //')${c_reset}
   ${c_mascot}|:_/ |${c_reset}              ${c_label}SHELL   ${c_reset} : ${c_value}${SHELL##*/}${c_reset}
