@@ -134,8 +134,6 @@ apt_install_pkgs() {
 [[ $UID -eq 0 ]] && die "não rode como root"
 
 clear
-echo
-printf "${B}who.sh — bootstrap${N}\n"
 printf "${D}=========================================${N}\n"
 get_dotfiles
 get_kitty_configs
