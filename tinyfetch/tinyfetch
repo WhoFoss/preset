@@ -1,0 +1,90 @@
+#!/bin/sh
+
+#-------------------------#
+# VARS
+#-------------------------#
+export version='1.1'
+# For speed, support UNICODE OFF
+export LC='C'
+export LANG='C'
+
+# Cores ANSI usadas na saída
+c_reset=$(printf '\033[0m')
+c_bold=$(printf '\033[1m')
+c_box=$(printf '\033[1;35m')    # magenta - moldura e usuário
+c_mascot=$(printf '\033[1;31m') # vermelho - mascote
+c_label=$(printf '\033[1;36m')  # ciano - rótulos
+c_value=$(printf '\033[0;37m')  # branco - valores
+
+#-------------------------#
+# FUNCTIONS
+#-------------------------#
+
+# Lê memória total e livre de /proc/meminfo
+MEMORY()
+{
+	while IFS=: read -r j c; do
+		if [ "$j" = 'MemTotal' ]; then
+			memtotal=$(echo $c | cut -d ' ' -f 1)
+			memtotal="$((memtotal/1024))"
+		elif [ "$j" = 'MemFree' ]; then
+			memfree=$(echo $c | cut -d' ' -f1)
+			memfree="$((memfree/1024))"
+		fi
+	done < /proc/meminfo
+}
+
+#---------------------------------------------------------------#
+
+# Lê o modelo da CPU de /proc/cpuinfo
+CPU()
+{
+	while IFS=: read -r a p; do
+		case $a in
+			"model name"*) modelname=$(echo $p | cut -d ' ' -f 1-) ;;
+		esac
+	done < /proc/cpuinfo
+}
+
+#---------------------------------------------------------------#
+
+# Descobre o ambiente gráfico (Xorg ou Wayland), sem quebrar se a var estiver vazia
+AMBIENT()
+{
+	if [ "${XDG_SESSION_TYPE:-}" = 'wayland' ]; then
+		ambient="$DESKTOP_SESSION"
+	else
+		ambient="${XDG_CURRENT_DESKTOP:-$DESKTOP_SESSION}"
+	fi
+	ambient="${ambient:-desconhecido}"
+}
+
+#---------------------------------------------------------------#
+
+# Imprime todas as infos formatadas
+INFO()
+{
+	local ram gpu
+
+	. /etc/os-release # Load Info
+
+	ram=$(free -hm | awk '/^Mem:/ {print $3 "/" $2}')
+	gpu=$(lspci | grep -Ei 'vga|3d|display' | grep -o '\[[^]]*\]' | tr '\n' ' ')
+
+	cat <<EOF
+
+    ${c_box}╭────────────╮${c_reset}      ${c_bold}${c_box}$USER@$(uname -n)${c_reset}
+    ${c_box}│  TINYFETCH │${c_reset}      -------------------
+    ${c_box}╰────────────╯${c_reset}      ${c_label}OS      ${c_reset} : ${c_value}$PRETTY_NAME${c_reset}
+   ${c_mascot}.--.${c_reset}               ${c_label}KERNEL  ${c_reset} : ${c_value}$(uname -rs)${c_reset}
+  ${c_mascot}|o_o |${c_reset}              ${c_label}UPTIME  ${c_reset} : ${c_value}$(uptime -p | sed 's/up //')${c_reset}
+  ${c_mascot}|:_/ |${c_reset}              ${c_label}SHELL   ${c_reset} : ${c_value}${SHELL##*/}${c_reset}
+ ${c_mascot}//   \ \\${c_reset}             ${c_label}AMBIENT ${c_reset} : ${c_value}$ambient${c_reset}
+${c_mascot}(|     | )${c_reset}            ${c_label}CPU     ${c_reset} : ${c_value}$modelname${c_reset}
+${c_mascot}/'\_   _/`\\${c_reset}           ${c_label}GPU     ${c_reset} : ${c_value}$gpu${c_reset}
+${c_mascot}\___)=(___/${c_reset}           ${c_label}MEMORY  ${c_reset} : ${c_value}$ram${c_reset}
+EOF
+}
+
+#========================= Main
+MEMORY; CPU; AMBIENT; INFO
