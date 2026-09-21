@@ -2,13 +2,14 @@
 set -euo pipefail
 trap 'echo "ERRO na linha $LINENO: $BASH_COMMAND" >&2' ERR
 
-# --- cores (esquema APT)
-G='\e[1;32m'   # verde (Pronto / ok)
-Y='\e[1;33m'   # amarelo (avisos)
-C='\e[1;36m'   # ciano (nomes de pacote)
-B='\e[1m'      # bold
-D='\e[2m'      # dim (cinza discreto)
-N='\e[0m'      # reset
+# --- cores (ANSI-C quoting $'...')
+G=$'\e[1;32m'   # verde
+Y=$'\e[1;33m'   # amarelo
+C=$'\e[1;36m'   # ciano
+B=$'\e[1m'      # bold
+D=$'\e[2m'      # dim
+R=$'\e[1;31m'   # vermelho
+N=$'\e[0m'      # reset
 
 # --- helpers de output (estilo APT)
 apt_read()    { printf "Lendo %s... ${G}Pronto${N}\n" "$*"; }
@@ -24,7 +25,7 @@ declare -A dotfiles=(
   [bashrc]=https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main/files/.bashrc
 )
 
-# --- kitty configs (vão para ~/.config/kitty/)
+# --- kitty configs
 declare -A kitty_configs=(
   [kitty.conf]=https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main/kitty/kitty.conf
   [current-theme.conf]=https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main/kitty/current-theme.conf
@@ -44,7 +45,7 @@ declare -A flatpaks=(
 apt_pkgs=(lsd unrar p7zip-full syncthing)
 
 # --- helpers
-die() { printf '\n${R}ERRO: %s${N}\n' "$*" >&2; exit 1; }
+die() { printf '\n%sERRO: %s%s\n' "$R" "$*" "$N" >&2; exit 1; }
 
 get_dotfiles() {
   apt_read "listas de pacotes"
@@ -134,8 +135,8 @@ apt_install_pkgs() {
 
 clear
 echo
-echo "${B}who.sh — bootstrap${N}"
-echo "${D}=========================================${N}"
+printf "${B}who.sh — bootstrap${N}\n"
+printf "${D}=========================================${N}\n"
 get_dotfiles
 get_kitty_configs
 kitty_install
