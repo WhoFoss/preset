@@ -62,7 +62,7 @@ get_dotfiles() {
     curl -fsSL "${dotfiles[$name]}" -o "$HOME/.$name"
     ((i++))
   done
-  apt_config "dotfiles (1.0)"
+  apt_config "dotfiles"
 }
 
 get_kitty_configs() {
@@ -77,13 +77,13 @@ get_kitty_configs() {
     curl -fsSL "${kitty_configs[$name]}" -o "$HOME/.config/kitty/$name"
     ((i++))
   done
-  apt_config "kitty-configs (1.0)"
+  apt_config "kitty-configs"
 }
 
 kitty_install() {
   echo
-  echo "Os NOVOS pacotes a seguir serão instalados:"
-  echo "  kitty"
+  echo "Os novos pacotes a seguir serão instalados:"
+  echo "kitty"
   echo
   apt_fetch "1" "kitty (installer oficial)"
   yes | bash <(curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh) || true
@@ -99,7 +99,7 @@ flatpak_install() {
   done
 
   echo
-  echo "Os NOVOS pacotes a seguir serão instalados:"
+  echo "Os novos pacotes a seguir serão instalados:"
   for name in "${!flatpaks[@]}"; do
     id="${flatpaks[$name]}"
     flatpak info "$id" &>/dev/null || echo "  $name"
@@ -119,7 +119,7 @@ flatpak_install() {
 
 apt_install_pkgs() {
   echo
-  echo "Os NOVOS pacotes a seguir serão instalados:"
+  echo "Os novos pacotes a seguir serão instalados:"
   echo "  ${apt_pkgs[*]}"
   echo
   apt_read "informações de estado"
