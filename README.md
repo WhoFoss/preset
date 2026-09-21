@@ -1,5 +1,8 @@
 ### preset
 > Meu preset, localizado em meu HOME
+```'''
+curl -fsSL https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main/who.sh | bash
+```
 ---
 ### tinyfetch:
 <img src="./assets/images/screenshot.png" width="385px"
