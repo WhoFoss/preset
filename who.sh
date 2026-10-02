@@ -56,7 +56,7 @@ declare -A flatpaks=(
 )
 
 # Pacotes apt.
-apt_pkgs=(curl flatpak lsd unrar p7zip-full syncthing adb fastboot)
+apt_pkgs=(flatpak lsd p7zip-full syncthing adb fastboot)
 
 #------------------------------- FIM-VARIÁVEIS --------------------------------<
 
