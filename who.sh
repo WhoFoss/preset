@@ -227,7 +227,7 @@ printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
 get_dotfiles
 get_kitty_configs
-kitty_install
+# kitty_install
 flatpak_install
 abdm_install
 _done
