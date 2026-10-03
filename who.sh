@@ -19,6 +19,7 @@
 #------------------------------------------------------------------------------|
 
 set -euo pipefail
+export FLATPAK_FANCY_OUTPUT=0
 trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
 
 #--------------------------------- VARIÁVEIS ---------------------------------->
