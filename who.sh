@@ -1,5 +1,38 @@
 #!/usr/bin/env bash
 
+#-----------HEADER-------------------------------------------------------------|
+# AUTOR             : WhoFoss
+# HOMEPAGE          : https://github.com/WhoFoss/preset
+# DATA-DE-CRIAÇÃO   : 02/10/2026
+# PROGRAMA          : preset.sh
+# VERSÃO            : 1.2.0
+# PEQUENA-DESCRIÇÃO : Configura o sistema após a instalação: dotfiles, Kitty,
+#                     Flatpaks, pacotes APT e AB Download Manager.
+# DEPENDÊNCIAS      : bash, apt, tput (curl e flatpak são instalados
+#                     pelo script). Deve ser executado como root.
+# RECURSOS          : Execução silenciosa: só mostra o que realmente faz.
+#                     Detecta programas já instalados (PATH, .desktop,
+#                     flatpak, apt e snap) e pula o download.
+#                     Dotfiles e configs só são baixados se ainda não existirem.
+#
+# CHANGELOG :
+#
+# 2026-10-11
+# - Detecção em camadas: PATH, .desktop, flatpak, apt e snap.
+# - Saída silenciosa quando nada precisa ser feito.
+# - Cores com tput; set -E para o trap ERR valer dentro das funções.
+# - Downloads via arquivo temporário; só baixa se o destino não existir.
+# - Agora exige root (is_root); removido o uso de sudo.
+# - Configs vão para o HOME de quem chamou o sudo (SUDO_USER), com o dono
+#   correto nos arquivos e pastas criados.
+# - Instala o papirus-icon-theme e aplica o Papirus-Dark no XFCE.
+#
+# 2026-10-02
+# - Funções e arrays com nomes consistentes.
+# - Kitty com symlinks e .desktop.
+# - Incluído o AB Download Manager.
+#------------------------------------------------------------------------------|
+
 set -Eeuo pipefail
 export FLATPAK_FANCY_OUTPUT=0
 trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
@@ -60,6 +93,7 @@ apt_pkgs=(
     "syncthing|syncthing"
     "adb|adb"
     "fastboot|fastboot"
+    "papirus-icon-theme|"
 )
 
 # Detecção dos flatpaks (nome amigável -> padrão|comandos possíveis).
@@ -304,6 +338,34 @@ abdm_install() {
     _config "ab-download-manager"
 }
 
+# Aplica o tema de ícones Papirus-Dark no XFCE do usuário alvo.
+icones_aplicar() {
+    local tema="Papirus-Dark"
+    local bus atual
+
+    command -v xfconf-query &>/dev/null || return 0
+    if [[ ! -d "/usr/share/icons/${tema}" && ! -d "${HOME}/.icons/${tema}" && ! -d "${HOME}/.local/share/icons/${tema}" ]]; then
+        return 0
+    fi
+
+    bus="/run/user/$(id -u "$usuario_alvo")/bus"
+    if [[ ! -S "$bus" ]]; then
+        printf "Ícones %s: sessão gráfica não encontrada; aplique depois.\n" "$tema"
+        return 0
+    fi
+
+    atual=$(runuser -u "$usuario_alvo" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}" \
+        xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
+
+    if [[ "$atual" == "$tema" ]]; then
+        return 0
+    fi
+
+    runuser -u "$usuario_alvo" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}" \
+        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s "$tema"
+    _config "ícones ${tema}"
+}
+
 # Verifica se o script roda como root.
 is_root() {
     if [[ "$UID" -ne 0 ]]; then
@@ -334,6 +396,7 @@ printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
 get_dotfiles
 get_kitty_configs
+icones_aplicar
 # kitty_install
 flatpak_install
 abdm_install
