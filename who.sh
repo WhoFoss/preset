@@ -94,6 +94,7 @@ apt_pkgs=(
     "adb|adb"
     "fastboot|fastboot"
     "papirus-icon-theme|"
+    "firefox|firefox firefox-esr"
 )
 
 # Detecção dos flatpaks (nome amigável -> padrão|comandos possíveis).
