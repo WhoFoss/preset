@@ -5,32 +5,24 @@
 # HOMEPAGE          : https://github.com/WhoFoss/preset
 # DATA-DE-CRIAÇÃO   : 02/10/2026
 # PROGRAMA          : preset.sh
-# VERSÃO            : 1.2.0
+# VERSÃO            : 1.3.0
 # PEQUENA-DESCRIÇÃO : Configura o sistema após a instalação: dotfiles, Kitty,
-#                     Flatpaks, pacotes APT e AB Download Manager.
-# DEPENDÊNCIAS      : bash, apt, tput (curl e flatpak são instalados
-#                     pelo script). Deve ser executado como root.
-# RECURSOS          : Execução silenciosa: só mostra o que realmente faz.
-#                     Detecta programas já instalados (PATH, .desktop,
-#                     flatpak, apt e snap) e pula o download.
-#                     Dotfiles e configs só são baixados se ainda não existirem.
+#                     gtk.css, Flatpaks, pacotes APT e AB Download Manager.
+# DEPENDÊNCIAS      : bash, apt, tput. Deve ser executado como root.
+# RECURSOS          : Execução silenciosa; pula o que já está instalado.
 #
 # CHANGELOG :
 #
+# 2026-10-13
+# - Baixa o gtk.css do painel do XFCE.
+#
 # 2026-10-11
-# - Detecção em camadas: PATH, .desktop, flatpak, apt e snap.
-# - Saída silenciosa quando nada precisa ser feito.
-# - Cores com tput; set -E para o trap ERR valer dentro das funções.
-# - Downloads via arquivo temporário; só baixa se o destino não existir.
-# - Agora exige root (is_root); removido o uso de sudo.
-# - Configs vão para o HOME de quem chamou o sudo (SUDO_USER), com o dono
-#   correto nos arquivos e pastas criados.
-# - Instala o papirus-icon-theme e aplica o Papirus-Dark no XFCE.
+# - Detecção de programas em camadas; saída silenciosa.
+# - Exige root; configs vão para o HOME do SUDO_USER.
+# - Aplica o Papirus-Dark no XFCE.
 #
 # 2026-10-02
-# - Funções e arrays com nomes consistentes.
-# - Kitty com symlinks e .desktop.
-# - Incluído o AB Download Manager.
+# - Versão inicial: dotfiles, Kitty, Flatpaks e AB Download Manager.
 #------------------------------------------------------------------------------|
 
 set -Eeuo pipefail
@@ -41,6 +33,7 @@ trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
 
 base="https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main"
 abdm_script="https://raw.githubusercontent.com/amir1376/ab-download-manager/master/scripts/install.sh"
+gtk_css="${base}/.config/gtk-3.0/gtk.css"
 
 # Usuário que recebe as configs (quem chamou o sudo; sem sudo, o próprio root).
 usuario_alvo="${SUDO_USER:-root}"
@@ -268,6 +261,12 @@ get_kitty_configs() {
     done
 }
 
+# Baixa o gtk.css do painel do XFCE.
+get_gtk_css() {
+    mkdir_dono "${HOME}/.config/gtk-3.0"
+    baixar "$gtk_css" "${HOME}/.config/gtk-3.0/gtk.css"
+}
+
 # Instala o kitty com o instalador oficial, se ainda não existir.
 kitty_install() {
     local app="${HOME}/.local/kitty.app"
@@ -397,6 +396,7 @@ printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
 get_dotfiles
 get_kitty_configs
+get_gtk_css
 icones_aplicar
 # kitty_install
 flatpak_install
