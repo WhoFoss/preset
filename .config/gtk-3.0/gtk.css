@@ -1,0 +1,58 @@
+/*####################################################################*/
+/* Autor: WhoFoss                                                      */
+/* Programa: gtk.css                                                   */
+/* DESCRIÇÃO: Estilo do Xfce Panel (painel 2 arredondado)              */
+/* Dependências: xfce4-panel, compositor do xfwm4                      */
+/* Recursos: botões arredondados, hover, genmon, docklike              */
+/*####################################################################*/
+
+/*---------------------------------------------------------------------*/
+/* Painel 2                                                            */
+/*---------------------------------------------------------------------*/
+.xfce4-panel.panel-2.background {
+    border-radius: 16px;
+}
+
+/*---------------------------------------------------------------------*/
+/* Botões e plugins                                                    */
+/*---------------------------------------------------------------------*/
+.xfce4-panel button,
+.genmon_plugin,
+#docklike-plugin .group {
+    transition: 0.2s;
+    border-radius: 8px;
+    margin: 3px;
+    background: rgba(255,255,255,0.04);
+}
+
+.xfce4-panel.background .tasklist button {
+    font-size: 12px;
+}
+
+/*---------------------------------------------------------------------*/
+/* Hover e ativo                                                       */
+/*---------------------------------------------------------------------*/
+.xfce4-panel.background button:active,
+.xfce4-panel.background button:hover,
+.xfce4-panel.background button:active:hover,
+.xfce4-panel.background .tasklist button:active,
+.xfce4-panel.background .tasklist button:hover,
+.xfce4-panel.background .tasklist button:active:hover,
+#docklike-plugin .hover_group {
+    background-color: rgba(255,255,255,0.07);
+}
+
+.xfce4-panel button:checked {
+    background: rgba(255,255,255,0.1);
+}
+
+/*---------------------------------------------------------------------*/
+/* Genmon                                                              */
+/*---------------------------------------------------------------------*/
+.genmon_plugin {
+    padding: 5px;
+}
+
+.genmon_plugin image {
+    margin-left: 5px;
+}
