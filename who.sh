@@ -1,30 +1,5 @@
 #!/usr/bin/env bash
 
-#-----------HEADER-------------------------------------------------------------|
-# AUTOR             : WhoFoss
-# HOMEPAGE          : https://github.com/WhoFoss/preset
-# DATA-DE-CRIAÇÃO   : 02/10/2026
-# PROGRAMA          : preset.sh
-# VERSÃO            : 1.3.0
-# PEQUENA-DESCRIÇÃO : Configura o sistema após a instalação: dotfiles, Kitty,
-#                     gtk.css, Flatpaks, pacotes APT e AB Download Manager.
-# DEPENDÊNCIAS      : bash, apt, tput. Deve ser executado como root.
-# RECURSOS          : Execução silenciosa; pula o que já está instalado.
-#
-# CHANGELOG :
-#
-# 2026-10-13
-# - Baixa o gtk.css do painel do XFCE.
-#
-# 2026-10-11
-# - Detecção de programas em camadas; saída silenciosa.
-# - Exige root; configs vão para o HOME do SUDO_USER.
-# - Aplica o Papirus-Dark no XFCE.
-#
-# 2026-10-02
-# - Versão inicial: dotfiles, Kitty, Flatpaks e AB Download Manager.
-#------------------------------------------------------------------------------|
-
 set -Eeuo pipefail
 export FLATPAK_FANCY_OUTPUT=0
 trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
@@ -34,11 +9,6 @@ trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
 base="https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main"
 abdm_script="https://raw.githubusercontent.com/amir1376/ab-download-manager/master/scripts/install.sh"
 gtk_css="${base}/.config/gtk-3.0/gtk.css"
-
-# Usuário que recebe as configs (quem chamou o sudo; sem sudo, o próprio root).
-usuario_alvo="${SUDO_USER:-root}"
-home_alvo=$(getent passwd "$usuario_alvo" | cut -d: -f6 || true)
-export HOME="$home_alvo"
 
 # Cores e estilos (tput).
 negrito=$(tput bold 2>/dev/null || true)
@@ -121,23 +91,6 @@ die() {
     exit 1
 }
 
-# Cria a pasta (e as que faltarem no caminho) com o usuário alvo como dono.
-mkdir_dono() {
-    local alvo="$1"
-    local rel="${alvo#"${home_alvo}"/}"
-    local atual="$home_alvo"
-    local parte
-    local IFS=/
-
-    for parte in $rel; do
-        atual="${atual}/${parte}"
-        if [[ ! -d "$atual" ]]; then
-            mkdir "$atual"
-            chown "${usuario_alvo}:" "$atual"
-        fi
-    done
-}
-
 # Procura os comandos no PATH e em ~/.local/bin.
 achou_cmd() {
     local c
@@ -207,6 +160,8 @@ baixar() {
         return 0
     fi
 
+    mkdir -p "$(dirname "$destino")"
+
     tmp=$(mktemp)
     if ! curl -fsSL "$url" -o "$tmp"; then
         rm -f "$tmp"
@@ -215,7 +170,6 @@ baixar() {
 
     mv "$tmp" "$destino"
     chmod 644 "$destino"
-    chown "${usuario_alvo}:" "$destino"
     _fetch "$(basename "$destino")" "baixado"
 }
 
@@ -238,7 +192,7 @@ install_pkgs() {
     fi
 
     printf "\nOs novos pacotes a seguir serão instalados:\n%s\n\n" "${faltando[*]}"
-    apt update && apt install -y "${faltando[@]}"
+    sudo apt update && sudo apt install -y "${faltando[@]}"
 }
 
 # Baixa dotfiles para o HOME.
@@ -254,8 +208,6 @@ get_dotfiles() {
 get_kitty_configs() {
     local name
 
-    mkdir_dono "${HOME}/.config/kitty"
-
     for name in "${!kitty_configs[@]}"; do
         baixar "${kitty_configs[$name]}" "${HOME}/.config/kitty/${name}"
     done
@@ -263,7 +215,6 @@ get_kitty_configs() {
 
 # Baixa o gtk.css do painel do XFCE.
 get_gtk_css() {
-    mkdir_dono "${HOME}/.config/gtk-3.0"
     baixar "$gtk_css" "${HOME}/.config/gtk-3.0/gtk.css"
 }
 
@@ -278,20 +229,14 @@ kitty_install() {
 
     printf "\n"
     _install "Kitty"
-    mkdir_dono "${HOME}/.local"
     curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin launch=n
 
-    mkdir_dono "${HOME}/.local/bin"
-    mkdir_dono "${HOME}/.local/share/applications"
+    mkdir -p "${HOME}/.local/bin" "${HOME}/.local/share/applications"
     ln -sf "${app}/bin/kitty" "${HOME}/.local/bin/kitty"
     ln -sf "${app}/bin/kitten" "${HOME}/.local/bin/kitten"
     cp "${app}/share/applications/kitty.desktop" "$desktop"
     sed -i "s|Icon=kitty|Icon=${app}/share/icons/hicolor/256x256/apps/kitty.png|g" "$desktop"
     sed -i "s|Exec=kitty|Exec=${app}/bin/kitty|g" "$desktop"
-
-    chown -R "${usuario_alvo}:" "$app"
-    chown -h "${usuario_alvo}:" "${HOME}/.local/bin/kitty" "${HOME}/.local/bin/kitten"
-    chown "${usuario_alvo}:" "$desktop"
     _config "kitty"
 }
 
@@ -318,11 +263,11 @@ flatpak_install() {
     printf "  %s\n" "${faltando[@]}"
     printf "\n"
 
-    flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
     for name in "${faltando[@]}"; do
         _install "$name"
-        flatpak install -y flathub "${flatpaks[$name]}"
+        sudo flatpak install -y flathub "${flatpaks[$name]}"
     done
 }
 
@@ -338,7 +283,7 @@ abdm_install() {
     _config "ab-download-manager"
 }
 
-# Aplica o tema de ícones Papirus-Dark no XFCE do usuário alvo.
+# Aplica o tema de ícones Papirus-Dark no XFCE.
 icones_aplicar() {
     local tema="Papirus-Dark"
     local bus atual
@@ -348,32 +293,33 @@ icones_aplicar() {
         return 0
     fi
 
-    bus="/run/user/$(id -u "$usuario_alvo")/bus"
-    if [[ ! -S "$bus" ]]; then
-        printf "Ícones %s: sessão gráfica não encontrada; aplique depois.\n" "$tema"
-        return 0
+    if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]]; then
+        bus="/run/user/${UID}/bus"
+        if [[ ! -S "$bus" ]]; then
+            printf "Ícones %s: sessão gráfica não encontrada; aplique depois.\n" "$tema"
+            return 0
+        fi
+        export DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}"
     fi
 
-    atual=$(runuser -u "$usuario_alvo" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}" \
-        xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
+    atual=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
 
     if [[ "$atual" == "$tema" ]]; then
         return 0
     fi
 
-    runuser -u "$usuario_alvo" -- env DBUS_SESSION_BUS_ADDRESS="unix:path=${bus}" \
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s "$tema"
+    xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s "$tema"
     _config "ícones ${tema}"
 }
 
-# Verifica se o script roda como root.
-is_root() {
-    if [[ "$UID" -ne 0 ]]; then
-        die "Rode como root."
+# Verifica se o script roda como usuário comum e se o sudo existe.
+nao_root() {
+    if [[ "$UID" -eq 0 ]]; then
+        die "Não rode como root; rode como usuário comum (o sudo é pedido quando preciso)."
     fi
 
-    if [[ -z "$home_alvo" || ! -d "$home_alvo" ]]; then
-        die "Home do usuário '${usuario_alvo}' não encontrado."
+    if ! command -v sudo &>/dev/null; then
+        die "sudo não encontrado."
     fi
 }
 
@@ -382,7 +328,7 @@ is_root() {
 
 #---------------------------------- TESTES ------------------------------------>
 
-is_root
+nao_root
 
 #--------------------------------- FIM-TESTES ---------------------------------<
 
