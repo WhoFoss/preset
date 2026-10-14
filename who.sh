@@ -422,6 +422,7 @@ fi
 printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
 fastfetch_install
+get_fastfetch_config
 fonte_instalar
 fonte_terminal
 get_dotfiles
