@@ -9,6 +9,7 @@ trap 'printf "Falha na linha %s: %s\n" "$LINENO" "$BASH_COMMAND" >&2' ERR
 base="https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main"
 abdm_script="https://raw.githubusercontent.com/amir1376/ab-download-manager/master/scripts/install.sh"
 gtk_css="${base}/.config/gtk-3.0/gtk.css"
+fastfetch_cfg="${base}/.config/fastfetch/config.jsonc"
 
 # Cores e estilos (tput).
 negrito=$(tput bold 2>/dev/null || true)
@@ -298,6 +299,11 @@ fastfetch_install() {
     chmod 644 "$tmp"
     sudo apt install -y "$tmp"
     rm -f "$tmp"
+}
+
+# Baixa o config.jsonc do fastfetch.
+get_fastfetch_config() {
+    baixar "$fastfetch_cfg" "${HOME}/.config/fastfetch/config.jsonc"
 }
 
 # Instala o AB Download Manager com o script oficial, se ainda não existir.
