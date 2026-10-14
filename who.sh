@@ -271,6 +271,35 @@ flatpak_install() {
     done
 }
 
+# Instala o fastfetch (apt; se não existir no repositório, usa o .deb do GitHub).
+fastfetch_install() {
+    local url="https://github.com/fastfetch-cli/fastfetch/releases/latest/download/fastfetch-linux-amd64.deb"
+    local tmp
+
+    if detectar "fastfetch" fastfetch; then
+        return 0
+    fi
+
+    printf "\n"
+    _install "fastfetch"
+
+    if apt-cache show fastfetch &>/dev/null; then
+        sudo apt install -y fastfetch
+        return 0
+    fi
+
+    tmp=$(mktemp --suffix=.deb)
+
+    if ! curl -fsSL "$url" -o "$tmp"; then
+        rm -f "$tmp"
+        die "Falha ao baixar: ${url}"
+    fi
+
+    chmod 644 "$tmp"
+    sudo apt install -y "$tmp"
+    rm -f "$tmp"
+}
+
 # Instala o AB Download Manager com o script oficial, se ainda não existir.
 abdm_install() {
     if detectar "abdownload" ABDownloadManager abdownloadmanager; then
@@ -386,6 +415,7 @@ if [[ -t 1 ]]; then
 fi
 printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
+fastfetch_install
 fonte_instalar
 fonte_terminal
 get_dotfiles
