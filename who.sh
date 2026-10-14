@@ -283,6 +283,52 @@ abdm_install() {
     _config "ab-download-manager"
 }
 
+# Instala a JetBrainsMono Nerd Font em ~/.local/share/fonts.
+fonte_instalar() {
+    local dir="${HOME}/.local/share/fonts/JetBrainsMonoNerd"
+    local url="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+    local tmp
+
+    if [[ -d "$dir" ]]; then
+        return 0
+    fi
+
+    printf "\n"
+    _install "JetBrainsMono Nerd Font"
+    tmp=$(mktemp --suffix=.zip)
+
+    if ! curl -fsSL "$url" -o "$tmp"; then
+        rm -f "$tmp"
+        die "Falha ao baixar: ${url}"
+    fi
+
+    mkdir -p "$dir"
+    unzip -qo "$tmp" -d "$dir"
+    rm -f "$tmp"
+    fc-cache -f "$dir"
+    _config "fonte JetBrainsMono Nerd Font"
+}
+
+# Define a Nerd Font como fonte do xfce4-terminal.
+fonte_terminal() {
+    local fonte="JetBrainsMono Nerd Font Mono 10"
+    local rc="${HOME}/.config/xfce4/terminal/terminalrc"
+
+    command -v xfce4-terminal &>/dev/null || return 0
+    mkdir -p "$(dirname "$rc")"
+
+    if [[ ! -f "$rc" ]]; then
+        printf "[Configuration]\nFontUseSystem=FALSE\nFontName=%s\n" "$fonte" > "$rc"
+    elif grep -q "^FontName=${fonte}$" "$rc"; then
+        return 0
+    else
+        sed -i '/^FontName=/d;/^FontUseSystem=/d' "$rc"
+        sed -i "/^\[Configuration\]/a FontUseSystem=FALSE\nFontName=${fonte}" "$rc"
+    fi
+
+    _config "fonte do xfce4-terminal"
+}
+
 # Aplica o tema de ícones Papirus-Dark no XFCE.
 icones_aplicar() {
     local tema="Papirus-Dark"
@@ -340,6 +386,8 @@ if [[ -t 1 ]]; then
 fi
 printf "%s=========================================%s\n" "$suave" "$fecha"
 install_pkgs
+fonte_instalar
+fonte_terminal
 get_dotfiles
 get_kitty_configs
 get_gtk_css
