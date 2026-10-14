@@ -151,15 +151,11 @@ detectar() {
     return 1
 }
 
-# Baixa um arquivo só se o destino ainda não existir.
+# Baixa um arquivo e sobrescreve o destino.
 baixar() {
     local url="$1"
     local destino="$2"
     local tmp
-
-    if [[ -e "$destino" ]]; then
-        return 0
-    fi
 
     mkdir -p "$(dirname "$destino")"
 
