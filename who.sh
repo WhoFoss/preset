@@ -10,6 +10,7 @@ base="https://raw.githubusercontent.com/WhoFoss/preset/refs/heads/main"
 abdm_script="https://raw.githubusercontent.com/amir1376/ab-download-manager/master/scripts/install.sh"
 gtk_css="${base}/.config/gtk-3.0/gtk.css"
 fastfetch_cfg="${base}/.config/fastfetch/config.jsonc"
+fastfetch_logo="${base}/.config/fastfetch/logo.txt"
 
 # Cores e estilos (tput).
 negrito=$(tput bold 2>/dev/null || true)
@@ -297,9 +298,10 @@ fastfetch_install() {
     rm -f "$tmp"
 }
 
-# Baixa o config.jsonc do fastfetch.
+# Baixa o config.jsonc e o logo do fastfetch.
 get_fastfetch_config() {
     baixar "$fastfetch_cfg" "${HOME}/.config/fastfetch/config.jsonc"
+    baixar "$fastfetch_logo" "${HOME}/.config/fastfetch/logo.txt"
 }
 
 # Instala o AB Download Manager com o script oficial, se ainda não existir.
