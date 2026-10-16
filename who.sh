@@ -62,6 +62,16 @@ apt_pkgs=(
     "firefox|firefox firefox-esr"
 )
 
+# Pacotes apt a remover (aceita curingas); edite conforme o que não usa.
+debloat_pkgs=(
+    'libreoffice*'
+)
+
+# Pastas de configuração a apagar junto com a remoção.
+debloat_cfgs=(
+    "${HOME}/.config/libreoffice"
+)
+
 # Detecção dos flatpaks (nome amigável -> padrão|comandos possíveis).
 declare -A flatpaks_detect=(
     [Thunderbird]="thunderbird|thunderbird"
@@ -91,6 +101,29 @@ _done() { printf "\n%sConcluído.%s\n" "$verde" "$fecha"; }
 die() {
     printf "\n%s%s%s\n" "$vermelho" "$*" "$fecha" >&2
     exit 1
+}
+
+# Remove os pacotes e configs listados em debloat_pkgs e debloat_cfgs.
+_debloat() {
+    local padrao cfg
+    local instalados=()
+
+    for padrao in "${debloat_pkgs[@]}"; do
+        while IFS= read -r pkg; do
+            [[ -n "$pkg" ]] && instalados+=("$pkg")
+        done < <(dpkg-query -W -f='${db:Status-Abbrev} ${Package}\n' "$padrao" 2>/dev/null | awk '$1 ~ /^ii/ {print $2}' || true)
+    done
+
+    if [[ "${#instalados[@]}" -gt 0 ]]; then
+        printf "\nOs pacotes a seguir serão removidos:\n%s\n\n" "${instalados[*]}"
+        sudo apt purge -y "${instalados[@]}" && sudo apt autoremove --purge -y
+    fi
+
+    for cfg in "${debloat_cfgs[@]}"; do
+        [[ -e "$cfg" ]] && rm -rf "$cfg" && _config "remoção de ${cfg}"
+    done
+
+    return 0
 }
 
 # Procura os comandos no PATH e em ~/.local/bin.
@@ -424,10 +457,11 @@ get_fastfetch_config
 fonte_instalar
 fonte_terminal
 get_dotfiles
+_debloat
 get_kitty_configs
 get_gtk_css
 icones_aplicar
-# kitty_install
+kitty_install
 flatpak_install
 abdm_install
 _done
